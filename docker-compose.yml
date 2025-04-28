@@ -1,0 +1,43 @@
+networks:
+  vpn-network:
+    driver: bridge
+
+services:
+  openvpn:
+    build: .
+    container_name: openvpn-client
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    volumes:
+      - ./config:/etc/openvpn/config
+      - ./logs:/var/log/openvpn
+    networks:
+      - vpn-network
+    privileged: true
+    ports:
+      - "1080:1080"
+    # These arguments improve OpenVPN performance
+    command: >
+      sh -c "openvpn --config /etc/openvpn/config/client.ovpn --pull-filter ignore 'ping' --pull-filter ignore 'ping-restart'"
+    
+  socks-proxy:
+    image: alpine:3.21
+    container_name: socks-proxy
+    depends_on:
+      - openvpn
+    restart: unless-stopped
+    network_mode: "service:openvpn"
+    volumes:
+      - ./scripts/socks_proxy_entrypoint.sh:/usr/local/bin/socks_proxy_entrypoint.sh 
+    command: >
+      sh -c "apk add --no-cache dante-server bash iproute2 && 
+             mkdir -p /etc/sockd && 
+             chmod +x /usr/local/bin/socks_proxy_entrypoint.sh &&
+             /usr/local/bin/socks_proxy_entrypoint.sh"
