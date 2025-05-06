@@ -5,6 +5,7 @@ RUN apk add --no-cache \
     build-base \
     openssl-dev \
     lzo-dev \
+    lz4-dev \
     linux-headers \
     autoconf \
     automake \
@@ -15,22 +16,26 @@ RUN apk add --no-cache \
     ca-certificates \
     curl \
     linux-pam-dev \
+    libnl3-dev \
+    libcap-ng-dev \
+    pkgconfig \
+    py3-docutils \
     && mkdir -p /etc/openvpn/config \
     && mkdir -p /var/log/openvpn
 
-# Download and build OpenVPN 2.4.12 from source
+# Download and build OpenVPN 2.6.14 from source
 WORKDIR /tmp
-RUN curl -sSL https://github.com/OpenVPN/openvpn/archive/refs/tags/v2.4.12.tar.gz -o openvpn-2.4.12.tar.gz && \
-    tar -xzf openvpn-2.4.12.tar.gz && \
-    cd openvpn-2.4.12 && \
+RUN curl -sSL https://github.com/OpenVPN/openvpn/archive/refs/tags/v2.6.14.tar.gz -o openvpn-2.6.14.tar.gz && \
+    tar -xzf openvpn-2.6.14.tar.gz && \
+    cd openvpn-2.6.14 && \
     autoreconf -i && \
     ./configure --enable-small --disable-debug --enable-lzo --enable-crypto --enable-ssl --disable-plugin-auth-pam && \
     make && \
     make install && \
     cd .. && \
-    rm -rf openvpn-2.4.12 openvpn-2.4.12.tar.gz && \
+    rm -rf openvpn-2.6.14 openvpn-2.6.14.tar.gz && \
     apk del build-base openssl-dev linux-headers autoconf automake libtool git curl linux-pam-dev && \
-    apk add --no-cache lzo openssl
+    apk add --no-cache lzo openssl libnl3 libcap-ng lz4-libs
 
 # Set working directory
 WORKDIR /etc/openvpn

@@ -6,7 +6,7 @@ It is designed to work on the Raspberry Pi 5, but should also work on any Linux-
 
 ## Features
 
-- OpenVPN client (v2.4.12) with optimized performance settings
+- OpenVPN client (v2.6.14) with optimized performance settings
 - Integrated SOCKS proxy server (Dante)
 - Docker-based deployment for easy setup and management
 
